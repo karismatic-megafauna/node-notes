@@ -1,0 +1,24 @@
+{
+  "name": "node-notes",
+  "version": "1.0.0",
+  "description": "a node application for taking notes",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelghinrichs/node-notes.git"
+  },
+  "keywords": [
+    "node",
+    "notes",
+    "cli"
+  ],
+  "author": "Michael George Hinrichs",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/michaelghinrichs/node-notes/issues"
+  },
+  "homepage": "https://github.com/michaelghinrichs/node-notes#readme"
+}
