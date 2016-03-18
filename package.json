@@ -17,8 +17,14 @@
   ],
   "author": "Michael George Hinrichs",
   "license": "ISC",
+  "bin": {
+    "snippet": "./main.js"
+  },
   "bugs": {
     "url": "https://github.com/michaelghinrichs/node-notes/issues"
   },
-  "homepage": "https://github.com/michaelghinrichs/node-notes#readme"
+  "homepage": "https://github.com/michaelghinrichs/node-notes#readme",
+  "dependencies": {
+    "commander": "^2.9.0"
+  }
 }
