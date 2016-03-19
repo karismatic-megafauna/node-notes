@@ -4,7 +4,7 @@ Personalized CLI note taking application in node
 
 ## Usage
 ```sh
-$ note new -1
+$ note new
  ```
 Create a new note for the day from your template
 
@@ -14,22 +14,22 @@ $ note <ENTER NOTE DISCRIPTION HERE>
 Adds the description to your last note object
 
 ```sh
-$ note -work <ENTER NOTE DESCRIPTION HERE>
+$ note <Note Title> <ENTER NOTE DESCRIPTION HERE>
 ```
-Pushes the description to your work note object
+Pushes the description to the specified object *key* with the description
 
 ```sh
-$ note -work -2c
+$ note <cli-ref> -2c
 ```
-Marks the second element in the work object as compelete via markdown `- [x]`
+Marks the second element in the object with matching cli-ref *value* as compelete via markdown `- [x]`
 
 ```sh
-$ note -work -2d
+$ note <cli-ref> -2d
 ```
 Deletes the entry at the second location
 
 ```sh
-$ note -work -2f
+$ note <cli-ref> -2f
 ```
 Marks the entry at the second location as failed via markdown `- [-]`
 
