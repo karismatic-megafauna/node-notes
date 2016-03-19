@@ -1,57 +1,116 @@
-# node-notes
+# nonote
 Personalized CLI note taking application in node
 
 
 ## Usage
 ```sh
-$ note new -1
+$ nonote new
  ```
 Create a new note for the day from your template
 
 ```sh
-$ note <ENTER NOTE DISCRIPTION HERE>
+$ nonote <ENTER NOTE DISCRIPTION HERE>
 ```
-Adds the description to your last note object
+Adds the note description to a misc object in the note
+If no note exists, it creates one with the default template
 
 ```sh
-$ note -work <ENTER NOTE DESCRIPTION HERE>
+$ nonote <Note Title> add <ENTER NOTE DESCRIPTION HERE>
 ```
-Pushes the description to your work note object
+Pushes the description to the specified object *key* with the description
 
 ```sh
-$ note -work -2c
+$ nonote <cli-ref> complete -2 
 ```
-Marks the second element in the work object as compelete via markdown `- [x]`
+Marks the second element in the object with matching cli-ref *value* as compelete via markdown `- [x]`
 
 ```sh
-$ note -work -2d
+$ nonote <cli-ref> delete -2 
 ```
 Deletes the entry at the second location
 
 ```sh
-$ note -work -2f
+$ nonote <cli-ref> fail -2 
 ```
 Marks the entry at the second location as failed via markdown `- [-]`
+
+
+## Example workflow
+
+```sh
+$ nonote new 
+```
+```sh
+$ nonote nt add Item 4 
+```
+
+```sh
+$ nonote nt complete -2
+```
+
+```sh
+$ nonote nt fail -2
+```
+
+```sh
+$ nonote nt delete -2
+```
 
 ## Template Config
 A template will look like this
 
+`a-config.json`
 ```json
-export const template1 = {
+{
   "Note Title": {
     "cli-ref": "nt",
     "description": "meta data about this note",
     "items": [
-      "Item 1",
-      "Item 2",
-      "Item 3",
-      "Item 4"
+      { 
+        "description": "Item 1",
+        "status": "complete"
+      },
+      { 
+        "description": "Item 2",
+        "status": "failed"
+      },
+      { 
+        "description": "Item 3",
+        "status": "incomplete"
+      },
     ]
   }
 }
 ```
-If no template is specified, the default is made.
-If a template is specified, that note will be pre-filled with that template.
+
+`some-config.json`
+```json
+{
+  "Another Note Title": {
+    "cli-ref": "ant",
+    "description": "meta data about this note",
+    "items": [
+      { 
+        "description": "Item 1",
+        "status": "complete"
+      },
+      { 
+        "description": "Item 2",
+        "status": "failed"
+      },
+      { 
+        "description": "Item 3",
+        "status": "incomplete"
+      },
+    ]
+  }
+}
+```
+
+## Some rules
+- If no template is specified, the default is made.
+- If a template is specified, that note will be pre-filled with that template.
+- If no object is specified with a new note, it will add it to an object called `Misc`
 
 Ideas:
 Exercise template, Coding template, work template, travel template etc
