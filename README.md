@@ -1,36 +1,36 @@
-# node-notes
+# nonote
 Personalized CLI note taking application in node
 
 
 ## Usage
 ```sh
-$ note new
+$ nonote new
  ```
 Create a new note for the day from your template
 
 ```sh
-$ note <ENTER NOTE DISCRIPTION HERE>
+$ nonote <ENTER NOTE DISCRIPTION HERE>
 ```
 Adds the note description to a misc object in the note
 If no note exists, it creates one with the default template
 
 ```sh
-$ note <Note Title> add <ENTER NOTE DESCRIPTION HERE>
+$ nonote <Note Title> add <ENTER NOTE DESCRIPTION HERE>
 ```
 Pushes the description to the specified object *key* with the description
 
 ```sh
-$ note <cli-ref> complete -2 
+$ nonote <cli-ref> complete -2 
 ```
 Marks the second element in the object with matching cli-ref *value* as compelete via markdown `- [x]`
 
 ```sh
-$ note <cli-ref> delete -2 
+$ nonote <cli-ref> delete -2 
 ```
 Deletes the entry at the second location
 
 ```sh
-$ note <cli-ref> fail -2 
+$ nonote <cli-ref> fail -2 
 ```
 Marks the entry at the second location as failed via markdown `- [-]`
 
@@ -38,24 +38,23 @@ Marks the entry at the second location as failed via markdown `- [-]`
 ## Example workflow
 
 ```sh
-$ note new 
+$ nonote new 
 ```
 ```sh
-$ note nt add Item 4 
+$ nonote nt add Item 4 
 ```
 
 ```sh
-$ note nt complete -2
+$ nonote nt complete -2
 ```
 
 ```sh
-$ note nt fail -2
+$ nonote nt fail -2
 ```
 
 ```sh
-$ note nt delete -2
+$ nonote nt delete -2
 ```
-
 
 ## Template Config
 A template will look like this
