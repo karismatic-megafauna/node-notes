@@ -60,8 +60,9 @@ $ note nt delete -2
 ## Template Config
 A template will look like this
 
+`a-config.json`
 ```json
-export const template1 = {
+{
   "Note Title": {
     "cli-ref": "nt",
     "description": "meta data about this note",
@@ -79,7 +80,13 @@ export const template1 = {
         "status": "incomplete"
       },
     ]
-  },
+  }
+}
+```
+
+`some-config.json`
+```json
+{
   "Another Note Title": {
     "cli-ref": "ant",
     "description": "meta data about this note",
