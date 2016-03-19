@@ -18,7 +18,7 @@
   "author": "Michael George Hinrichs",
   "license": "ISC",
   "bin": {
-    "snippet": "./main.js"
+    "nonote": "./main.js"
   },
   "bugs": {
     "url": "https://github.com/michaelghinrichs/node-notes/issues"
