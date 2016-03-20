@@ -11,8 +11,11 @@ var moment = require('moment');
 
 // TODO: move to config
 var notesDir = process.env['HOME'] + '/Code/node-notes';
-var template = notesDir + '/note-template.json';
+var weekdayTemplate = notesDir + '/weekday.json';
 var days = notesDir + '/days/';
+var today = moment().format("DD-MM-YYYY");
+var toDir = days + today;
+var toData = toDir + '/data.json';
 
 // Reading the json template in:
 // jsonfile.readFile(file, function(err, obj) {
@@ -25,16 +28,18 @@ var days = notesDir + '/days/';
 
 program
   .arguments('new', 'create new note for day')
-  .action(function(cmd) {
-    var now = moment().format("DD-MM-YYYY");
-    var toDir = days + now;
+  .action(function() {
     if (fs.existsSync(toDir)){
       return console.log('note already exists');
     }
     var newDir = fs.mkdirsSync(toDir);
-    console.log(newDir);
-  })
-  .parse(process.argv);
+    // copy template over
+    fs.copySync(weekdayTemplate, toData);
+    // make markdow file
+
+  });
+
+program.parse(process.argv);
 
 // program
 //   .arguments('<file>')
