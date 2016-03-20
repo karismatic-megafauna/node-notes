@@ -28,14 +28,11 @@ program
   .action(function(cmd) {
     var now = moment().format("DD-MM-YYYY");
     var toDir = days + now;
-    fs.mkdirs(toDir, function(err){
-      if (err) {
-        return console.error(err);
-      }
-      console.log('success!');
-      // copy template over
-      // call function to create .md file from json
-    });
+    if (fs.existsSync(toDir)){
+      return console.log('note already exists');
+    }
+    var newDir = fs.mkdirsSync(toDir);
+    console.log(newDir);
   })
   .parse(process.argv);
 
