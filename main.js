@@ -6,20 +6,33 @@ var request = require('superagent');
 var prompt = require('co-prompt');
 var program = require('commander');
 var jsonfile = require('jsonfile');
+var fs = require('fs');
+var moment = require('moment');
 
-var file = './note-template.json';
+// TODO: move to config
+var notesDir = '~/Code/node-notes';
+var template = notesDir+'/note-template.json';
+var days = notesDir+'/days/';
 
-jsonfile.readFile(file, function(err, obj) {
-  console.dir(Object.keys(obj))
-});
+// Reading the json template in:
+// jsonfile.readFile(file, function(err, obj) {
+//   console.dir(Object.keys(obj))
+// });
 
-var lolz = jsonfile.readFileSync(file);
+// var lolz = jsonfile.readFileSync(file);
 
-console.log(lolz);
+// console.log(lolz);
 
 program
-  .version('0.0.1')
-  .command('new [note]', 'create new note for day')
+  .arguments('new', 'create new note for day')
+  .action(function(cmd) {
+    var now = moment().format("DD-MM-YYYY");
+    var newDir = days+now;
+    console.log(newDir);
+    if (!fs.existsSync(newDir)) {
+      // fs.mkdirSync(newDir);
+    }
+  })
   .parse(process.argv);
 
 // program
