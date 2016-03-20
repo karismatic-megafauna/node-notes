@@ -27,16 +27,15 @@ program
   .arguments('new', 'create new note for day')
   .action(function(cmd) {
     var now = moment().format("DD-MM-YYYY");
-    var newDir = days + now;
-    console.log(newDir);
-    // if (!fs.existsSync(newDir)) {
-      fs.mkdirs(newDir, function(err){
-        if (err) {
-          return console.error(err);
-        }
-        console.log('success!');
-      });
-    // }
+    var toDir = days + now;
+    fs.mkdirs(toDir, function(err){
+      if (err) {
+        return console.error(err);
+      }
+      console.log('success!');
+      // copy template over
+      // call function to create .md file from json
+    });
   })
   .parse(process.argv);
 
