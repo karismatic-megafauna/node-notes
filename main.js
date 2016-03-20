@@ -1,11 +1,7 @@
 #!/usr/bin/env node --harmony
 
-var co = require('co');
 var chalk = require('chalk');
-var request = require('superagent');
-var prompt = require('co-prompt');
 var program = require('commander');
-var jsonfile = require('jsonfile');
 var fs = require('fs-extra');
 var moment = require('moment');
 
