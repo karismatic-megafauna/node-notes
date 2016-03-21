@@ -12,6 +12,7 @@ var days = notesDir + '/days/';
 var today = moment().format("DD-MM-YYYY");
 var toDir = days + today;
 var toData = toDir + '/data.json';
+var toMd = toDir + '/note.md';
 
 // Reading the json template in:
 // jsonfile.readFile(file, function(err, obj) {
@@ -20,19 +21,29 @@ var toData = toDir + '/data.json';
 
 // var lolz = jsonfile.readFileSync(file);
 
-// console.log(lolz);
+function makeNote(jsonObj) {
+  var noteData = fs.createWriteStream(toMd);
+  Object.keys(jsonObj).map(function(title, index) {
+    noteData.write("# " + title + "\n");
+    Object.keys(jsonObj[title]).map(function(items, index) {
+      console.log(jsonObj[title]['items']);
+    });
+  });
+}
 
 program
   .arguments('new', 'create new note for day')
   .action(function() {
     if (fs.existsSync(toDir)){
-      return console.log('note already exists');
+      // return console.log('note already exists');
     }
     var newDir = fs.mkdirsSync(toDir);
     // copy template over
     fs.copySync(weekdayTemplate, toData);
-    // make markdow file
 
+    var obj = fs.readJsonSync(toData);
+    makeNote(obj);
+    // make markdown file from this Data
   });
 
 program.parse(process.argv);
