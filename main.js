@@ -39,14 +39,14 @@ function markTask(/*STRING: failed, complete, incomplete*/){
 }
 
 program
-  .arguments('new', 'create new note for day')
+  .option('new', 'create new note for day')
   .action(function() {
     // if (fs.existsSync(toDir)) {
     //   console.log(chalk.cyan('note already exists, edit it with one of the following commands:'));
-    //   console.log(chalk.red('nonote <cli-ref> add <note description>'));
-    //   console.log(chalk.red('nonote <cli-ref> complete <note index>'));
-    //   console.log(chalk.red('nonote <cli-ref> fail <note index>'));
-    //   console.log(chalk.red('nonote <cli-ref> delete <note index>'));
+    //   console.log(chalk.red('nonote add <note description>'));
+    //   console.log(chalk.red('nonote complete <note index>'));
+    //   console.log(chalk.red('nonote fail <note index>'));
+    //   console.log(chalk.red('nonote delete <note index>'));
     //   return;
     // }
     var newDir = fs.mkdirsSync(toDir);
@@ -57,10 +57,12 @@ program
     console.log(chalk.cyan('new note created for: ') + chalk.bold.red(today));
   });
 
-// program
-//   .arguments('add', 'append item to specified object')
-//   .action(function() {
-//   });
+program
+  .option('add', 'append item to specified object')
+  .action(function() {
+    // console.log(program);
+    // console.log(program.args);
+  });
 // program
 //   .arguments('complete', 'append item to specified object')
 //   .action(function() {

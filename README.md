@@ -20,17 +20,17 @@ $ nonote <Note Title> add <ENTER NOTE DESCRIPTION HERE>
 Pushes the description to the specified object *key* with the description
 
 ```sh
-$ nonote <cli-ref> complete -2 
+$ nonote complete -2
 ```
 Marks the second element in the object with matching cli-ref *value* as compelete via markdown `- [x]`
 
 ```sh
-$ nonote <cli-ref> delete -2 
+$ nonote delete <cli-ref> -2
 ```
 Deletes the entry at the second location
 
 ```sh
-$ nonote <cli-ref> fail -2 
+$ nonote fail <cli-ref> -2
 ```
 Marks the entry at the second location as failed via markdown `- [-]`
 
@@ -38,22 +38,22 @@ Marks the entry at the second location as failed via markdown `- [-]`
 ## Example workflow
 
 ```sh
-$ nonote new 
+$ nonote new
 ```
 ```sh
-$ nonote nt add Item 4 
-```
-
-```sh
-$ nonote nt complete -2
+$ nonote add nt Item 4
 ```
 
 ```sh
-$ nonote nt fail -2
+$ nonote complete nt 2
 ```
 
 ```sh
-$ nonote nt delete -2
+$ nonote fail nt 2
+```
+
+```sh
+$ nonote delete nt 2
 ```
 
 ## Template Config
@@ -66,15 +66,15 @@ A template will look like this
     "cli-ref": "nt",
     "description": "meta data about this note",
     "items": [
-      { 
+      {
         "description": "Item 1",
         "status": "complete"
       },
-      { 
+      {
         "description": "Item 2",
         "status": "failed"
       },
-      { 
+      {
         "description": "Item 3",
         "status": "incomplete"
       },
@@ -90,15 +90,15 @@ A template will look like this
     "cli-ref": "ant",
     "description": "meta data about this note",
     "items": [
-      { 
+      {
         "description": "Item 1",
         "status": "complete"
       },
-      { 
+      {
         "description": "Item 2",
         "status": "failed"
       },
-      { 
+      {
         "description": "Item 3",
         "status": "incomplete"
       },
