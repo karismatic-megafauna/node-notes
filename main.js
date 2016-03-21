@@ -23,10 +23,10 @@ var toMd = toDir + '/note.md';
 
 function makeNote(jsonObj) {
   var noteData = fs.createWriteStream(toMd);
-  Object.keys(jsonObj).map(function(title, index) {
+  Object.keys(jsonObj).map(function(title) {
     noteData.write("# " + title + "\n");
-    Object.keys(jsonObj[title]).map(function(items, index) {
-      console.log(jsonObj[title]['items']);
+    Object.keys(jsonObj[title]['items']).map(function(items){
+      noteData.write("- [ ] " + jsonObj[title]['items'][items]['description'] + "\n");
     });
   });
 }
