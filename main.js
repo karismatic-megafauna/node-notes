@@ -22,23 +22,55 @@ function makeNote(jsonObj) {
   Object.keys(jsonObj).map(function(title) {
     noteData.write("# " + title + "\n");
     Object.keys(jsonObj[title]['items']).map(function(items){
-      noteData.write("- [ ] " + jsonObj[title]['items'][items]['description'] + "\n");
+      var status = jsonObj[title]['items'][items]['status'];
+      var checkBox = '- [ ] ';
+      if (status === 'complete') {
+        checkBox = '- [x] ';
+      } else if (status === 'failed') {
+        checkBox = '- [-] ';
+      }
+      noteData.write(checkBox + jsonObj[title]['items'][items]['description'] + "\n");
     });
   });
-  console.log(chalk.cyan('new note created for: ') + chalk.bold.red(today));
+}
+
+function markTask(/*STRING: failed, complete, incomplete*/){
+  // implement me
 }
 
 program
   .arguments('new', 'create new note for day')
   .action(function() {
-    if (fs.existsSync(toDir)){
-      // return console.log('note already exists');
-    }
+    // if (fs.existsSync(toDir)) {
+    //   console.log(chalk.cyan('note already exists, edit it with one of the following commands:'));
+    //   console.log(chalk.red('nonote <cli-ref> add <note description>'));
+    //   console.log(chalk.red('nonote <cli-ref> complete <note index>'));
+    //   console.log(chalk.red('nonote <cli-ref> fail <note index>'));
+    //   console.log(chalk.red('nonote <cli-ref> delete <note index>'));
+    //   return;
+    // }
     var newDir = fs.mkdirsSync(toDir);
     fs.copySync(weekdayTemplate, toData);
 
     var obj = fs.readJsonSync(toData);
     makeNote(obj);
+    console.log(chalk.cyan('new note created for: ') + chalk.bold.red(today));
   });
 
+// program
+//   .arguments('add', 'append item to specified object')
+//   .action(function() {
+//   });
+// program
+//   .arguments('complete', 'append item to specified object')
+//   .action(function() {
+//   });
+// program
+//   .arguments('fail', 'append item to specified object')
+//   .action(function() {
+//   });
+// program
+//   .arguments('delete', 'append item to specified object')
+//   .action(function() {
+//   });
 program.parse(process.argv);
