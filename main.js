@@ -43,16 +43,26 @@ function makeNote(jsonObj) {
 
 // Get user input
 program
-  .version('0.0.1')
-  .command('new', 'create new note for day')
-  .command('add', 'add to an exsisting note')
-  .command('complete', 'check off a completed task');
-
+  .version('0.0.1');
   Object.keys(dataFile).map(function(item) {
     program.option('-'+dataFile[item]['cli-ref'], '<cli-ref> ' + dataFile[item]['description']);
   });
 
-  program.action(function(cmd) {
+program
+  .command('new', 'create new note for day')
+  .action(function(cmd) {
+    cmdValue = cmd;
+  });
+
+program
+  .command('add', 'add to an exsisting note')
+  .action(function(cmd) {
+    cmdValue = cmd;
+  });
+
+program
+  .command('complete', 'check off a completed task')
+  .action(function(cmd) {
     cmdValue = cmd;
   });
 
