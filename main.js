@@ -16,7 +16,14 @@ var days = notesDir + '/days/';
 var toDir = days + today;
 var toData = toDir + '/data.json';
 var toMd = toDir + '/note.md';
+var dataFile = '';
+try {
+  dataFile = fs.readJsonSync(toData);
+} catch (e) {
+  dataFile = fs.readJsonSync(weekdayTemplate);
+}
 
+// Util Functions
 function makeNote(jsonObj) {
   var noteData = fs.createWriteStream(toMd);
   Object.keys(jsonObj).map(function(title) {
@@ -34,45 +41,38 @@ function makeNote(jsonObj) {
   });
 }
 
-function markTask(/*STRING: failed, complete, incomplete*/){
-  // implement me
-}
-
+// Get user input
 program
-  .option('new', 'create new note for day')
-  .action(function() {
-    // if (fs.existsSync(toDir)) {
-    //   console.log(chalk.cyan('note already exists, edit it with one of the following commands:'));
-    //   console.log(chalk.red('nonote add <note description>'));
-    //   console.log(chalk.red('nonote complete <note index>'));
-    //   console.log(chalk.red('nonote fail <note index>'));
-    //   console.log(chalk.red('nonote delete <note index>'));
-    //   return;
-    // }
+  .version('0.0.1')
+  .command('new', 'create new note for day')
+  .command('add', 'add to an exsisting note')
+  .command('complete', 'check off a completed task');
+
+  Object.keys(dataFile).map(function(item) {
+    program.option('-'+dataFile[item]['cli-ref'], '<cli-ref> ' + dataFile[item]['description']);
+  });
+
+  program.action(function(cmd) {
+    cmdValue = cmd;
+  });
+
+  program.parse(process.argv);
+
+  // if (fs.existsSync(toDir)) {
+  //   console.log(chalk.cyan('note already exists, edit it with one of the following commands:'));
+  //   console.log(chalk.red('nonote add <note description>'));
+  //   console.log(chalk.red('nonote complete <note index>'));
+  //   console.log(chalk.red('nonote fail <note index>'));
+  //   console.log(chalk.red('nonote delete <note index>'));
+  //   return;
+  // }
+  if (cmdValue === 'new') {
+
+    console.log(chalk.cyan('creating new note for today!'));
+
     var newDir = fs.mkdirsSync(toDir);
     fs.copySync(weekdayTemplate, toData);
+    makeNote(dataFile);
 
-    var obj = fs.readJsonSync(toData);
-    makeNote(obj);
-    console.log(chalk.cyan('new note created for: ') + chalk.bold.red(today));
-  });
-
-program
-  .option('add', 'append item to specified object')
-  .action(function() {
-    // console.log(program);
-    // console.log(program.args);
-  });
-// program
-//   .arguments('complete', 'append item to specified object')
-//   .action(function() {
-//   });
-// program
-//   .arguments('fail', 'append item to specified object')
-//   .action(function() {
-//   });
-// program
-//   .arguments('delete', 'append item to specified object')
-//   .action(function() {
-//   });
-program.parse(process.argv);
+    console.log(chalk.white('new note created for: ') + chalk.bold.green(today));
+  }
