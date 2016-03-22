@@ -49,19 +49,9 @@ program
   });
 
 program
-  .command('new', 'create new note for day')
-  .action(function(cmd) {
-    cmdValue = cmd;
-  });
-
-program
-  .command('add', 'add to an exsisting note')
-  .action(function(cmd) {
-    cmdValue = cmd;
-  });
-
-program
-  .command('complete', 'check off a completed task')
+  .command('new', 'create a new note')
+  .command('complete')
+  .command('add', 'add item to note', { isDefault: true })
   .action(function(cmd) {
     cmdValue = cmd;
   });
