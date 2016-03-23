@@ -28,15 +28,16 @@ function makeNote(jsonObj) {
   var noteMd = fs.createWriteStream(toMd);
   Object.keys(jsonObj).map(function(title) {
     noteMd.write("# " + title + "\n");
-    Object.keys(jsonObj[title]['items']).map(function(items){
+    Object.keys(jsonObj[title]['items']).map(function(items, index){
       var status = jsonObj[title]['items'][items]['status'];
-      var checkBox = '- [ ] ';
+      var checkBox = '- [ ]';
+      var itemIndex = ' ' + index + '.) ';
       if (status === 'complete') {
-        checkBox = '- [x] ';
+        checkBox = '- [x]';
       } else if (status === 'failed') {
-        checkBox = '- [-] ';
+        checkBox = '- [-]';
       }
-      noteMd.write(checkBox + jsonObj[title]['items'][items]['description'] + "\n");
+      noteMd.write(checkBox + itemIndex + jsonObj[title]['items'][items]['description'] + "\n");
     });
   });
 }
@@ -95,7 +96,21 @@ program
 
 program
   .command('remove [cli-ref] <index>')
-  .description('add note to object')
+  .alias('rem')
+  .alias('delete')
+  .alias('del')
+  .description('remove note from note object')
+  .action(function(ref, note, cmd) {
+    cmdValue = cmd;
+    refValue = ref;
+    noteIndex = note;
+  });
+
+program
+  .command('complete [cli-ref] <index>')
+  .alias('comp')
+  .alias('check')
+  .description('mark todo item as complete!')
   .action(function(ref, note, cmd) {
     cmdValue = cmd;
     refValue = ref;
