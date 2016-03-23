@@ -42,34 +42,38 @@ function makeNote(jsonObj) {
 }
 
 function addNote(noteObj, key) {
-  // pull note array items into space seperated string
   var noteString = noteObj.reduce(function(memo, word){
     return memo + ' ' + word;
   });
+
   var descriptionObj = {
     description: noteString,
     status: 'incomplete',
   };
+
   // modify toData
-  Object.keys(dataFile).map(function(noteType){
-    // find correct cli-ref object
-    if (dataFile[noteType]['cli-ref'] === key) {
-      dataFile[noteType]['items'].push(descriptionObj);
+  Object.keys(dataFile).map(function(note){
+    if (dataFile[note]['cli-ref'] === key) {
+      dataFile[note]['items'].push(descriptionObj);
       fs.writeJsonSync(toData, dataFile);
     }
   });
-  // add to end of items array
-  // call makeNote
-  console.log('_________________________');
-  console.log(key);
-  console.log('_________________________');
-  console.log(noteObj);
-  console.log('_________________________');
-  console.log(dataFile);
+  makeNote(dataFile);
+}
+
+function removeNote(index, key) {
+  Object.keys(dataFile).map(function(note){
+    if (dataFile[note]['cli-ref'] === key) {
+      dataFile[note]['items'].splice(index, 1);
+      fs.writeJsonSync(toData, dataFile);
+    }
+  });
+  makeNote(dataFile);
 }
 
 var cmdValue = '';
 var noteValue = '';
+var noteIndex = '';
 
 program
   .version('0.0.1')
@@ -86,9 +90,16 @@ program
   .action(function(ref, note, cmd) {
     cmdValue = cmd;
     refValue = ref;
-    // TODO
-    // parse the note into text here? or is that a util functions job?
     noteValue = note;
+  });
+
+program
+  .command('remove [cli-ref] <index>')
+  .description('add note to object')
+  .action(function(ref, note, cmd) {
+    cmdValue = cmd;
+    refValue = ref;
+    noteIndex = note;
   });
 
   program.parse(process.argv);
@@ -106,6 +117,9 @@ program
   } else if (cmdValue._name === 'add') {
     addNote(noteValue, refValue);
     console.log(chalk.cyan('note added!'));
+  } else if (cmdValue._name === 'delete' || cmdValue._name === 'remove') {
+    removeNote(noteIndex, refValue);
+    console.log(chalk.cyan('note at index[' + noteIndex + '] was removed!'));
   } else {
     console.log(chalk.cyan('note already exists, edit it with one of the following commands:'));
     console.log('nonote' + chalk.red(' add ') + '<note description>');
