@@ -25,9 +25,9 @@ try {
 
 // Util Functions
 function makeNote(jsonObj) {
-  var noteData = fs.createWriteStream(toMd);
+  var noteMd = fs.createWriteStream(toMd);
   Object.keys(jsonObj).map(function(title) {
-    noteData.write("# " + title + "\n");
+    noteMd.write("# " + title + "\n");
     Object.keys(jsonObj[title]['items']).map(function(items){
       var status = jsonObj[title]['items'][items]['status'];
       var checkBox = '- [ ] ';
@@ -36,22 +36,35 @@ function makeNote(jsonObj) {
       } else if (status === 'failed') {
         checkBox = '- [-] ';
       }
-      noteData.write(checkBox + jsonObj[title]['items'][items]['description'] + "\n");
+      noteMd.write(checkBox + jsonObj[title]['items'][items]['description'] + "\n");
     });
   });
 }
 
-// Get user input
-program
-  .version('0.0.1');
-  Object.keys(dataFile).map(function(item) {
-    program.option('-'+dataFile[item]['cli-ref'], '<flag-ref> ' + dataFile[item]['description']);
+function addNote(noteObj, key) {
+  // modify toData
+  Object.keys(dataFile).map(function(noteType){
+    // find correct cli-ref object
+    if ( dataFile[noteType]['cli-ref'] === key){
+      dataFile[noteType]['items'].push('thing');
+      fs.writeJsonSync(toData, dataFile);
+    }
   });
-  // TODO: remove option interface, this will not work...mu
+    // add to end of items array
+  // call makeNote
+  console.log('_________________________');
+  console.log(key);
+  console.log('_________________________');
+  console.log(noteObj);
+  console.log('_________________________');
+  console.log(dataFile);
+}
 
 var cmdValue = '';
 var noteValue = '';
+
 program
+  .version('0.0.1')
   .command('new')
   .description('welp...')
   .action(function(cmd) {
@@ -70,13 +83,6 @@ program
     noteValue = note;
   });
 
-// program
-//   .command('*')
-//   .description('woooooot command')
-//   .action(function(cmd) {
-//     console.log(this.outputHelp());
-//   });
-
   program.parse(process.argv);
 
   if (cmdValue._name === undefined) {
@@ -90,8 +96,8 @@ program
 
     console.log(chalk.white('new note created for: ') + chalk.bold.green(today));
   } else if (cmdValue._name === 'add') {
-    console.log(chalk.cyan('note: ' + noteValue));
-    console.log(chalk.cyan('ref: ' + refValue));
+    addNote(noteValue, refValue);
+    console.log(chalk.cyan('note added!'));
   } else {
     console.log(chalk.cyan('note already exists, edit it with one of the following commands:'));
     console.log('nonote' + chalk.red(' add ') + '<note description>');
