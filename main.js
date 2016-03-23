@@ -45,29 +45,43 @@ function makeNote(jsonObj) {
 program
   .version('0.0.1');
   Object.keys(dataFile).map(function(item) {
-    program.option('-'+dataFile[item]['cli-ref'], '<cli-ref> ' + dataFile[item]['description']);
+    program.option('-'+dataFile[item]['cli-ref'], '<flag-ref> ' + dataFile[item]['description']);
   });
+  // TODO: remove option interface, this will not work...mu
 
+var cmdValue = '';
+var noteValue = '';
 program
-  .command('new', 'create a new note')
-  .command('complete')
-  .command('add', 'add item to note', { isDefault: true })
+  .command('new')
+  .description('welp...')
   .action(function(cmd) {
+    console.log('command: ' + cmd._name);
     cmdValue = cmd;
   });
 
+program
+  .command('add [cli-ref] <notes...>')
+  .description('add note to object')
+  .action(function(ref, note, cmd) {
+    cmdValue = cmd;
+    refValue = ref;
+    // TODO
+    // parse the note into text here? or is that a util functions job?
+    noteValue = note;
+  });
+
+// program
+//   .command('*')
+//   .description('woooooot command')
+//   .action(function(cmd) {
+//     console.log(this.outputHelp());
+//   });
+
   program.parse(process.argv);
 
-  // if (fs.existsSync(toDir)) {
-  //   console.log(chalk.cyan('note already exists, edit it with one of the following commands:'));
-  //   console.log(chalk.red('nonote add <note description>'));
-  //   console.log(chalk.red('nonote complete <note index>'));
-  //   console.log(chalk.red('nonote fail <note index>'));
-  //   console.log(chalk.red('nonote delete <note index>'));
-  //   return;
-  // }
-  if (cmdValue === 'new') {
-
+  if (cmdValue._name === undefined) {
+    console.log(program.help());
+  } else if (cmdValue._name === 'new' && !fs.existsSync(toDir)) {
     console.log(chalk.cyan('creating new note for today!'));
 
     var newDir = fs.mkdirsSync(toDir);
@@ -75,4 +89,14 @@ program
     makeNote(dataFile);
 
     console.log(chalk.white('new note created for: ') + chalk.bold.green(today));
+  } else if (cmdValue._name === 'add') {
+    console.log(chalk.cyan('note: ' + noteValue));
+    console.log(chalk.cyan('ref: ' + refValue));
+  } else {
+    console.log(chalk.cyan('note already exists, edit it with one of the following commands:'));
+    console.log('nonote' + chalk.red(' add ') + '<note description>');
+    console.log('nonote' + chalk.red(' complete ') + '<note index>');
+    console.log('nonote' + chalk.red(' fail ') + '<note index>');
+    console.log('nonote' + chalk.red(' delete ') + '<note index>');
+    return;
   }
