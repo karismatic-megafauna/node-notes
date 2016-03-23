@@ -42,15 +42,23 @@ function makeNote(jsonObj) {
 }
 
 function addNote(noteObj, key) {
+  // pull note array items into space seperated string
+  var noteString = noteObj.reduce(function(memo, word){
+    return memo + ' ' + word;
+  });
+  var descriptionObj = {
+    description: noteString,
+    status: 'incomplete',
+  };
   // modify toData
   Object.keys(dataFile).map(function(noteType){
     // find correct cli-ref object
-    if ( dataFile[noteType]['cli-ref'] === key){
-      dataFile[noteType]['items'].push('thing');
+    if (dataFile[noteType]['cli-ref'] === key) {
+      dataFile[noteType]['items'].push(descriptionObj);
       fs.writeJsonSync(toData, dataFile);
     }
   });
-    // add to end of items array
+  // add to end of items array
   // call makeNote
   console.log('_________________________');
   console.log(key);
