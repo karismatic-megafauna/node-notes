@@ -72,6 +72,36 @@ function removeNote(index, key) {
   makeNote(dataFile);
 }
 
+function completeNote(index, key) {
+  Object.keys(dataFile).map(function(note) {
+    if (dataFile[note]['cli-ref'] === key) {
+      dataFile[note]['items'][index]['status'] = 'complete';
+      fs.writeJsonSync(toData, dataFile);
+    }
+  });
+  makeNote(dataFile);
+}
+
+function incompleteNote(index, key) {
+  Object.keys(dataFile).map(function(note) {
+    if (dataFile[note]['cli-ref'] === key) {
+      dataFile[note]['items'][index]['status'] = 'incomplete';
+      fs.writeJsonSync(toData, dataFile);
+    }
+  });
+  makeNote(dataFile);
+}
+
+function failNote(index, key) {
+  Object.keys(dataFile).map(function(note) {
+    if (dataFile[note]['cli-ref'] === key) {
+      dataFile[note]['items'][index]['status'] = 'failed';
+      fs.writeJsonSync(toData, dataFile);
+    }
+  });
+  makeNote(dataFile);
+}
+
 var cmdValue = '';
 var noteValue = '';
 var noteIndex = '';
@@ -79,7 +109,8 @@ var noteIndex = '';
 program
   .version('0.0.1')
   .command('new')
-  .description('welp...')
+  .alias('n')
+  .description('create a new note for the day')
   .action(function(cmd) {
     console.log('command: ' + cmd._name);
     cmdValue = cmd;
@@ -87,6 +118,7 @@ program
 
 program
   .command('add [cli-ref] <notes...>')
+  .alias('a')
   .description('add note to object')
   .action(function(ref, note, cmd) {
     cmdValue = cmd;
@@ -96,9 +128,11 @@ program
 
 program
   .command('remove [cli-ref] <index>')
+  .alias('r')
   .alias('rem')
-  .alias('delete')
   .alias('del')
+  .alias('d')
+  .alias('delete')
   .description('remove note from note object')
   .action(function(ref, note, cmd) {
     cmdValue = cmd;
@@ -110,15 +144,41 @@ program
   .command('complete [cli-ref] <index>')
   .alias('comp')
   .alias('check')
-  .description('mark todo item as complete!')
+  .alias('c')
+  .description('mark item as complete')
   .action(function(ref, note, cmd) {
     cmdValue = cmd;
     refValue = ref;
     noteIndex = note;
   });
 
+program
+  .command('incomplete [cli-ref] <index>')
+  .alias('incomp')
+  .alias('uncheck')
+  .alias('i')
+  .description('mark item as incomplete')
+  .action(function(ref, note, cmd) {
+    cmdValue = cmd;
+    refValue = ref;
+    noteIndex = note;
+  });
+
+program
+  .command('failed [cli-ref] <index>')
+  .alias('fail')
+  .alias('f')
+  .description('mark item as failed')
+  .action(function(ref, note, cmd) {
+    cmdValue = cmd;
+    refValue = ref;
+    noteIndex = note;
+  });
+
+
   program.parse(process.argv);
 
+  // Parse the commands and do something
   if (cmdValue._name === undefined) {
     console.log(program.help());
   } else if (cmdValue._name === 'new' && !fs.existsSync(toDir)) {
@@ -132,9 +192,18 @@ program
   } else if (cmdValue._name === 'add') {
     addNote(noteValue, refValue);
     console.log(chalk.cyan('note added!'));
-  } else if (cmdValue._name === 'delete' || cmdValue._name === 'remove') {
+  } else if (cmdValue._name === 'remove') {
     removeNote(noteIndex, refValue);
     console.log(chalk.cyan('note at index[' + noteIndex + '] was removed!'));
+  } else if (cmdValue._name === 'complete') {
+    completeNote(noteIndex, refValue);
+    console.log(chalk.cyan('note at index[' + noteIndex + '] was marked as complete!'));
+  } else if (cmdValue._name === 'incomplete') {
+    incompleteNote(noteIndex, refValue);
+    console.log(chalk.cyan('note at index[' + noteIndex + '] was marked as incomplete!'));
+  } else if (cmdValue._name === 'failed') {
+    failNote(noteIndex, refValue);
+    console.log(chalk.cyan('note at index[' + noteIndex + '] was marked as failed... :('));
   } else {
     console.log(chalk.cyan('note already exists, edit it with one of the following commands:'));
     console.log('nonote' + chalk.red(' add ') + '<note description>');
