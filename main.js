@@ -41,6 +41,7 @@ function makeNote(jsonObj) {
       }
       noteMd.write(checkBox + itemIndex + jsonObj[title]['items'][items]['description'] + "\n");
     });
+    noteMd.write("\n");
   });
 }
 
