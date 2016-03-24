@@ -67,48 +67,79 @@ function addNote(noteObj, key) {
 
 // TODO: think about changing these status functions to a single type
 // signiture -> changeStatus(index, key, newStatus)
+// would this be a case for currying? or some other functional tecq?
+
 function removeNote(index, key) {
-  Object.keys(dataFile).map(function(note){
+  var cliFound = false;
+  Object.keys(dataFile).map(function(note, noteIndex){
     if (dataFile[note]['cli-ref'] === key) {
+      cliFound = true;
+      if (!dataFile[note]['items'][index]) {
+        throw new Error('index ' + index + ' in "' + key + '" object does not exist');
+      }
       dataFile[note]['items'].splice(index, 1);
       fs.writeJsonSync(toData, dataFile);
+    } else if (Object.keys(dataFile).length === (noteIndex + 1) && !cliFound) {
+      throw new Error('"' + key + '" <cli-ref> does not exist');
     }
   });
   makeNote(dataFile);
 }
 
 function completeNote(index, key) {
-  Object.keys(dataFile).map(function(note) {
+  var cliFound = false;
+  Object.keys(dataFile).map(function(note, noteIndex) {
     if (dataFile[note]['cli-ref'] === key) {
+      cliFound = true;
+      if (!dataFile[note]['items'][index]) {
+        throw new Error('index ' + index + ' in "' + key + '" object does not exist');
+      }
       dataFile[note]['items'][index]['status'] = 'complete';
       fs.writeJsonSync(toData, dataFile);
+    } else if (Object.keys(dataFile).length === (noteIndex + 1) && !cliFound) {
+      throw new Error('"' + key + '" <cli-ref> does not exist');
     }
   });
   makeNote(dataFile);
 }
 
 function incompleteNote(index, key) {
-  Object.keys(dataFile).map(function(note) {
+  var cliFound = false;
+  Object.keys(dataFile).map(function(note, noteIndex) {
     if (dataFile[note]['cli-ref'] === key) {
+      cliFound = true;
+      if (!dataFile[note]['items'][index]) {
+        throw new Error('index ' + index + ' in "' + key + '" object does not exist');
+      }
       dataFile[note]['items'][index]['status'] = 'incomplete';
       fs.writeJsonSync(toData, dataFile);
+    } else if (Object.keys(dataFile).length === (noteIndex + 1) && !cliFound) {
+      throw new Error('"' + key + '" <cli-ref> does not exist');
     }
   });
   makeNote(dataFile);
 }
 
 function failNote(index, key) {
-  Object.keys(dataFile).map(function(note) {
+  var cliFound = false;
+  Object.keys(dataFile).map(function(note, noteIndex) {
     if (dataFile[note]['cli-ref'] === key) {
+      cliFound = true;
+      if (!dataFile[note]['items'][index]) {
+        throw new Error('index ' + index + ' in "' + key + '" object does not exist');
+      }
       dataFile[note]['items'][index]['status'] = 'failed';
       fs.writeJsonSync(toData, dataFile);
+      return makeNote(dataFile);
+    } else if (Object.keys(dataFile).length === (noteIndex + 1) && !cliFound) {
+      throw new Error('"' + key + '" <cli-ref> does not exist');
     }
   });
-  makeNote(dataFile);
 }
 
 var cmdValue = '';
 var noteValue = '';
+var refValue = '';
 var noteIndex = '';
 
 program
@@ -117,7 +148,6 @@ program
   .alias('n')
   .description('create a new note for the day')
   .action(function(cmd) {
-    console.log('command: ' + cmd._name);
     cmdValue = cmd;
   });
 
@@ -134,10 +164,6 @@ program
 program
   .command('remove [cli-ref] <index>')
   .alias('r')
-  .alias('rem')
-  .alias('del')
-  .alias('d')
-  .alias('delete')
   .description('remove note from note object')
   .action(function(ref, note, cmd) {
     cmdValue = cmd;
@@ -147,8 +173,6 @@ program
 
 program
   .command('complete [cli-ref] <index>')
-  .alias('comp')
-  .alias('check')
   .alias('c')
   .description('mark item as complete')
   .action(function(ref, note, cmd) {
@@ -159,8 +183,6 @@ program
 
 program
   .command('incomplete [cli-ref] <index>')
-  .alias('incomp')
-  .alias('uncheck')
   .alias('i')
   .description('mark item as incomplete')
   .action(function(ref, note, cmd) {
@@ -171,7 +193,6 @@ program
 
 program
   .command('failed [cli-ref] <index>')
-  .alias('fail')
   .alias('f')
   .description('mark item as failed')
   .action(function(ref, note, cmd) {
@@ -199,20 +220,41 @@ program
 
     console.log(chalk.white('new note created for: ') + chalk.bold.green(today));
   } else if (cmdValue._name === 'add') {
-    addNote(noteValue, refValue);
-    console.log(chalk.cyan('note added!'));
+    try {
+      addNote(noteValue, refValue);
+      console.log(chalk.green('note added!'));
+    } catch (e) {
+      console.log(chalk.red(e));
+    }
   } else if (cmdValue._name === 'remove') {
-    removeNote(noteIndex, refValue);
-    console.log(chalk.cyan('note at index[' + noteIndex + '] was removed!'));
+    try {
+      removeNote(noteIndex, refValue);
+      console.log(chalk.green('note at index[' + noteIndex + '] was removed!'));
+    } catch (e) {
+      console.log(chalk.red(e));
+    }
   } else if (cmdValue._name === 'complete') {
-    completeNote(noteIndex, refValue);
-    console.log(chalk.cyan('note at index[' + noteIndex + '] was marked as complete!'));
+    try {
+      completeNote(noteIndex, refValue);
+      console.log(chalk.green('note at index[' + noteIndex + '] was marked as complete!'));
+    } catch (e) {
+      console.log(chalk.red(e));
+    }
   } else if (cmdValue._name === 'incomplete') {
+    try {
     incompleteNote(noteIndex, refValue);
-    console.log(chalk.cyan('note at index[' + noteIndex + '] was marked as incomplete!'));
+    console.log(chalk.green('note at index[' + noteIndex + '] was marked as incomplete!'));
+    } catch (e) {
+      console.log(chalk.red(e));
+    }
+
   } else if (cmdValue._name === 'failed') {
-    failNote(noteIndex, refValue);
-    console.log(chalk.cyan('note at index[' + noteIndex + '] was marked as failed... :('));
+    try {
+      failNote(noteIndex, refValue);
+      console.log(chalk.green('note at index[' + noteIndex + '] was marked as failed :('));
+    } catch (e) {
+      console.log(chalk.red(e));
+    }
   } else {
     console.log(chalk.cyan('note already exists, edit it with one of the following commands:'));
     console.log('nonote' + chalk.red(' add ') + '<note description>');
