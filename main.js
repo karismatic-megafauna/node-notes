@@ -10,6 +10,7 @@ var moment = require('moment');
 var today = moment().format("DD-MM-YYYY");
 
 // TODO: move to config
+// TODO: create nonote init command
 var notesDir = process.env['HOME'] + '/Code/node-notes';
 var weekdayTemplate = notesDir + '/weekday.json';
 var days = notesDir + '/days/';
@@ -23,6 +24,7 @@ try {
   dataFile = fs.readJsonSync(weekdayTemplate);
 }
 
+// TODO: move these to a helper file
 // Util Functions
 function makeNote(jsonObj) {
   var noteMd = fs.createWriteStream(toMd);
@@ -62,6 +64,8 @@ function addNote(noteObj, key) {
   makeNote(dataFile);
 }
 
+// TODO: think about changing these status functions to a single type
+// signiture -> changeStatus(index, key, newStatus)
 function removeNote(index, key) {
   Object.keys(dataFile).map(function(note){
     if (dataFile[note]['cli-ref'] === key) {
@@ -178,6 +182,10 @@ program
 
   program.parse(process.argv);
 
+  // TODO: clean up below, shit is terrifying
+  // TODO: handle some errors more elegantly...don't cover those cases well
+  // what happens when i pass in an index that doesn't exist?
+  // what happens when i pass in a cli-ref that doesn't exist?
   // Parse the commands and do something
   if (cmdValue._name === undefined) {
     console.log(program.help());
