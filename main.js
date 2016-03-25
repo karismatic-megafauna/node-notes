@@ -6,22 +6,29 @@ var program = require('commander');
 var fs = require('fs-extra');
 var moment = require('moment');
 
+// Save Dir config
+// this needs to NOT fail when running `nonote init` soooo let's be smarter
+// about when we ask for this path?
+
 // Globals
 var today = moment().format("DD-MM-YYYY");
 
 // TODO: move to config
 // TODO: create nonote init command
-var notesDir = process.env['HOME'] + '/Code/node-notes';
-var weekdayTemplate = notesDir + '/weekday.json';
-var days = notesDir + '/days/';
-var toDir = days + today;
-var toData = toDir + '/data.json';
-var toMd = toDir + '/note.md';
-var dataFile = '';
-try {
-  dataFile = fs.readJsonSync(toData);
-} catch (e) {
-  dataFile = fs.readJsonSync(weekdayTemplate);
+// Replate code/node-notes with path from config
+function getData() {
+  try {
+    var config = fs.readJsonSync(process.env['HOME'] + '/.nonoterc');
+  } catch (e) {
+    return console.error( e + '\n No .nonoterc defined at the root, run nonnote init to obtain!');
+  }
+  var notesDir = process.env['HOME'] + '/Code/node-notes';
+  var template = notesDir + '/weekday.json';
+  var days = notesDir + '/days/';
+  var toDir = days + today;
+  var toData = toDir + '/data.json';
+  var toMd = toDir + '/note.md';
+  return fs.readJsonSync(toData);
 }
 
 // TODO: move these to a helper file
@@ -46,6 +53,7 @@ function makeNote(jsonObj) {
 }
 
 function addNote(noteObj, key) {
+  var dataFile = getData();
   var noteString = noteObj.reduce(function(memo, word){
     return memo + ' ' + word;
   });
@@ -70,6 +78,7 @@ function addNote(noteObj, key) {
 // would this be a case for currying? or some other functional tecq?
 
 function removeNote(index, key) {
+  var dataFile = getData();
   var cliFound = false;
   Object.keys(dataFile).map(function(note, noteIndex){
     if (dataFile[note]['cli-ref'] === key) {
@@ -87,6 +96,7 @@ function removeNote(index, key) {
 }
 
 function completeNote(index, key) {
+  var dataFile = getData();
   var cliFound = false;
   Object.keys(dataFile).map(function(note, noteIndex) {
     if (dataFile[note]['cli-ref'] === key) {
@@ -104,6 +114,7 @@ function completeNote(index, key) {
 }
 
 function incompleteNote(index, key) {
+  var dataFile = getData();
   var cliFound = false;
   Object.keys(dataFile).map(function(note, noteIndex) {
     if (dataFile[note]['cli-ref'] === key) {
@@ -121,6 +132,7 @@ function incompleteNote(index, key) {
 }
 
 function failNote(index, key) {
+  var dataFile = getData();
   var cliFound = false;
   Object.keys(dataFile).map(function(note, noteIndex) {
     if (dataFile[note]['cli-ref'] === key) {
@@ -141,12 +153,21 @@ var cmdValue = '';
 var noteValue = '';
 var refValue = '';
 var noteIndex = '';
+var templateValue = '';
 
 program
   .version('0.0.1')
-  .command('new')
+  .command('new [template]')
   .alias('n')
   .description('create a new note for the day')
+  .action(function(template, cmd) {
+    cmdValue = cmd;
+    templateValue = template;
+  });
+
+program
+  .command('init')
+  .description('initializes notes')
   .action(function(cmd) {
     cmdValue = cmd;
   });
@@ -215,7 +236,7 @@ program
     console.log(chalk.cyan('creating new note for today!'));
 
     var newDir = fs.mkdirsSync(toDir);
-    fs.copySync(weekdayTemplate, toData);
+    fs.copySync(template, toData);
     makeNote(dataFile);
 
     console.log(chalk.white('new note created for: ') + chalk.bold.green(today));
@@ -252,6 +273,12 @@ program
     try {
       failNote(noteIndex, refValue);
       console.log(chalk.green('note at index[' + noteIndex + '] was marked as failed :('));
+    } catch (e) {
+      console.log(chalk.red(e));
+    }
+  } else if (cmdValue._name === 'init') {
+    try {
+      console.log(chalk.green('nonote has been initialized! Yay!'));
     } catch (e) {
       console.log(chalk.red(e));
     }
