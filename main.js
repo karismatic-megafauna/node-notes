@@ -19,7 +19,7 @@ var today = moment().format("DD-MM-YYYY");
 
 function getConfig() {
   try {
-    var config = process.env['HOME'] + '/.nonoterc';
+    var config = process.env['HOME'] + '/.nonoterc.json';
     return fs.readJsonSync(config).notesDirectory;
   } catch (e) {
     return console.error( e + '\n No .nonoterc defined at the root, run `$ nonnote init` to obtain!');
@@ -27,7 +27,17 @@ function getConfig() {
 }
 
 function initializeNotes() {
-  return console.log('hi');
+  // create .nonoterc
+  var rcFile = process.env['HOME'] + '/.nonoterc.json';
+  fs.closeSync(fs.openSync(rcFile, 'w'));
+
+  var dotFileJSON = {}
+  // TODO: get the following string from user input...oh boy... :/
+  dotFileJSON.notesDirectory = "/Code/notes";
+
+  fs.writeJsonSync(rcFile, dotFileJSON);
+
+  return console.log(rcFile);
 }
 
 function getDir(type) {
@@ -89,6 +99,7 @@ function addNote(noteObj, key) {
 
 function removeNote(index, key) {
   var dir = getDir();
+  var toData = dir + '/data.json';
   var dataJSON = fs.readJsonSync(dir + '/data.json');
   var cliFound = false;
   Object.keys(dataJSON).map(function(note, noteIndex){
