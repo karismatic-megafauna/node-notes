@@ -1,5 +1,5 @@
 #!/usr/bin/env node --harmony
-
+/* eslint-disable */
 // Libs
 var chalk = require('chalk');
 var program = require('commander');
@@ -16,24 +16,32 @@ var today = moment().format("DD-MM-YYYY");
 // TODO: move to config
 // TODO: create nonote init command
 // Replate code/node-notes with path from config
-function getData() {
+
+function getConfig() {
   try {
-    var config = fs.readJsonSync(process.env['HOME'] + '/.nonoterc');
+    var config = process.env['HOME'] + '/.nonoterc';
+    return fs.readJsonSync(config).notesDirectory;
   } catch (e) {
-    return console.error( e + '\n No .nonoterc defined at the root, run nonnote init to obtain!');
+    return console.error( e + '\n No .nonoterc defined at the root, run `$ nonnote init` to obtain!');
   }
-  var notesDir = process.env['HOME'] + '/Code/node-notes';
-  var template = notesDir + '/weekday.json';
+}
+
+function initializeNotes() {
+  return console.log('hi');
+}
+
+function getDir(type) {
+  var notesDir = getConfig();
   var days = notesDir + '/days/';
   var toDir = days + today;
-  var toData = toDir + '/data.json';
-  var toMd = toDir + '/note.md';
-  return fs.readJsonSync(toData);
+  return toDir;
 }
 
 // TODO: move these to a helper file
 // Util Functions
 function makeNote(jsonObj) {
+  var dir = getDir();
+  var toMd = dir + '/note.md';
   var noteMd = fs.createWriteStream(toMd);
   Object.keys(jsonObj).map(function(title) {
     noteMd.write("# " + title + "\n");
@@ -53,7 +61,9 @@ function makeNote(jsonObj) {
 }
 
 function addNote(noteObj, key) {
-  var dataFile = getData();
+  var dir = getDir();
+  var toData = dir + '/data.json';
+  var dataJSON = fs.readJsonSync(toData);
   var noteString = noteObj.reduce(function(memo, word){
     return memo + ' ' + word;
   });
@@ -64,13 +74,13 @@ function addNote(noteObj, key) {
   };
 
   // modify toData
-  Object.keys(dataFile).map(function(note){
-    if (dataFile[note]['cli-ref'] === key) {
-      dataFile[note]['items'].push(descriptionObj);
-      fs.writeJsonSync(toData, dataFile);
+  Object.keys(dataJSON).map(function(note){
+    if (dataJSON[note]['cli-ref'] === key) {
+      dataJSON[note]['items'].push(descriptionObj);
+      fs.writeJsonSync(toData, dataJSON);
     }
   });
-  makeNote(dataFile);
+  makeNote(dataJSON);
 }
 
 // TODO: think about changing these status functions to a single type
@@ -78,72 +88,79 @@ function addNote(noteObj, key) {
 // would this be a case for currying? or some other functional tecq?
 
 function removeNote(index, key) {
-  var dataFile = getData();
+  var dir = getDir();
+  var dataJSON = fs.readJsonSync(dir + '/data.json');
   var cliFound = false;
-  Object.keys(dataFile).map(function(note, noteIndex){
-    if (dataFile[note]['cli-ref'] === key) {
+  Object.keys(dataJSON).map(function(note, noteIndex){
+    if (dataJSON[note]['cli-ref'] === key) {
       cliFound = true;
-      if (!dataFile[note]['items'][index]) {
+      if (!dataJSON[note]['items'][index]) {
         throw new Error('index ' + index + ' in "' + key + '" object does not exist');
       }
-      dataFile[note]['items'].splice(index, 1);
-      fs.writeJsonSync(toData, dataFile);
-    } else if (Object.keys(dataFile).length === (noteIndex + 1) && !cliFound) {
+      dataJSON[note]['items'].splice(index, 1);
+      fs.writeJsonSync(toData, dataJSON);
+    } else if (Object.keys(dataJSON).length === (noteIndex + 1) && !cliFound) {
       throw new Error('"' + key + '" <cli-ref> does not exist');
     }
   });
-  makeNote(dataFile);
+  makeNote(dataJSON);
 }
 
 function completeNote(index, key) {
-  var dataFile = getData();
+  var dir = getDir();
+  var toData = dir + '/data.json';
+  var dataJSON = fs.readJsonSync(toData);
   var cliFound = false;
-  Object.keys(dataFile).map(function(note, noteIndex) {
-    if (dataFile[note]['cli-ref'] === key) {
+  Object.keys(dataJSON).map(function(note, noteIndex) {
+    if (dataJSON[note]['cli-ref'] === key) {
       cliFound = true;
-      if (!dataFile[note]['items'][index]) {
+      if (!dataJSON[note]['items'][index]) {
         throw new Error('index ' + index + ' in "' + key + '" object does not exist');
       }
-      dataFile[note]['items'][index]['status'] = 'complete';
-      fs.writeJsonSync(toData, dataFile);
-    } else if (Object.keys(dataFile).length === (noteIndex + 1) && !cliFound) {
+      dataJSON[note]['items'][index]['status'] = 'complete';
+      fs.writeJsonSync(toData, dataJSON);
+    } else if (Object.keys(dataJSON).length === (noteIndex + 1) && !cliFound) {
       throw new Error('"' + key + '" <cli-ref> does not exist');
     }
   });
-  makeNote(dataFile);
+  makeNote(dataJSON);
 }
 
 function incompleteNote(index, key) {
-  var dataFile = getData();
+  var dir = getDir();
+  var toData = dir + '/data.json';
+  var dataJSON = fs.readJsonSync(toData);
   var cliFound = false;
-  Object.keys(dataFile).map(function(note, noteIndex) {
-    if (dataFile[note]['cli-ref'] === key) {
+  Object.keys(dataJSON).map(function(note, noteIndex) {
+    if (dataJSON[note]['cli-ref'] === key) {
       cliFound = true;
-      if (!dataFile[note]['items'][index]) {
+      if (!dataJSON[note]['items'][index]) {
         throw new Error('index ' + index + ' in "' + key + '" object does not exist');
       }
-      dataFile[note]['items'][index]['status'] = 'incomplete';
-      fs.writeJsonSync(toData, dataFile);
-    } else if (Object.keys(dataFile).length === (noteIndex + 1) && !cliFound) {
+      dataJSON[note]['items'][index]['status'] = 'incomplete';
+      fs.writeJsonSync(toData, dataJSON);
+    } else if (Object.keys(dataJSON).length === (noteIndex + 1) && !cliFound) {
       throw new Error('"' + key + '" <cli-ref> does not exist');
     }
   });
-  makeNote(dataFile);
+  makeNote(dataJSON);
 }
 
 function failNote(index, key) {
-  var dataFile = getData();
+  var dir = getDir();
+  var toData = dir + '/data.json';
+  var dataJSON = fs.readJsonSync(toData);
   var cliFound = false;
-  Object.keys(dataFile).map(function(note, noteIndex) {
-    if (dataFile[note]['cli-ref'] === key) {
+  Object.keys(dataJSON).map(function(note, noteIndex) {
+    if (dataJSON[note]['cli-ref'] === key) {
       cliFound = true;
-      if (!dataFile[note]['items'][index]) {
+      if (!dataJSON[note]['items'][index]) {
         throw new Error('index ' + index + ' in "' + key + '" object does not exist');
       }
-      dataFile[note]['items'][index]['status'] = 'failed';
-      fs.writeJsonSync(toData, dataFile);
-      return makeNote(dataFile);
-    } else if (Object.keys(dataFile).length === (noteIndex + 1) && !cliFound) {
+      dataJSON[note]['items'][index]['status'] = 'failed';
+      fs.writeJsonSync(toData, dataJSON);
+      return makeNote(dataJSON);
+    } else if (Object.keys(dataJSON).length === (noteIndex + 1) && !cliFound) {
       throw new Error('"' + key + '" <cli-ref> does not exist');
     }
   });
@@ -222,7 +239,6 @@ program
     noteIndex = note;
   });
 
-
   program.parse(process.argv);
 
   // TODO: clean up below, shit is terrifying
@@ -232,12 +248,25 @@ program
   // Parse the commands and do something
   if (cmdValue._name === undefined) {
     console.log(program.help());
-  } else if (cmdValue._name === 'new' && !fs.existsSync(toDir)) {
+  } else if (cmdValue._name === 'new') {
+    var dir = getDir();
+    var toData = dir + '/data.json';
+    var dataJSON = fs.readJsonSync(toData);
+    var configJSON = fs.readJsonSync(getConfig());
+    // read template in
+    // get object template of proper name
+    // if can't find, get first in templates object
+    // var template = Object.keys(configJSON).map(function(key){
+    //   if (key === templateValue){
+    //     return
+    //   }
+    // });
+
     console.log(chalk.cyan('creating new note for today!'));
 
-    var newDir = fs.mkdirsSync(toDir);
+    fs.mkdirsSync(dir);
     fs.copySync(template, toData);
-    makeNote(dataFile);
+    makeNote(dataJSON);
 
     console.log(chalk.white('new note created for: ') + chalk.bold.green(today));
   } else if (cmdValue._name === 'add') {
@@ -278,6 +307,7 @@ program
     }
   } else if (cmdValue._name === 'init') {
     try {
+      initializeNotes();
       console.log(chalk.green('nonote has been initialized! Yay!'));
     } catch (e) {
       console.log(chalk.red(e));
@@ -290,3 +320,4 @@ program
     console.log('nonote' + chalk.red(' delete ') + '<note index>');
     return;
   }
+/* eslint-enable*/
