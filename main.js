@@ -5,6 +5,8 @@ var chalk = require('chalk');
 var program = require('commander');
 var fs = require('fs-extra');
 var moment = require('moment');
+var co = require('co');
+var prompt = require('co-prompt');
 
 // Save Dir config
 // this needs to NOT fail when running `nonote init` soooo let's be smarter
@@ -26,14 +28,14 @@ function getConfig() {
   }
 }
 
-function initializeNotes() {
+function initializeNotes(userDir) {
   // create .nonoterc
   var rcFile = process.env['HOME'] + '/.nonoterc.json';
   fs.closeSync(fs.openSync(rcFile, 'w'));
 
   var dotFileJSON = {}
   // TODO: get the following string from user input...oh boy... :/
-  dotFileJSON.notesDirectory = "/Code/notes";
+  dotFileJSON.notesDirectory = userDir;
 
   fs.writeJsonSync(rcFile, dotFileJSON);
 
@@ -198,6 +200,10 @@ program
   .description('initializes notes')
   .action(function(cmd) {
     cmdValue = cmd;
+    co(function *() {
+      var notesDirPath = yield prompt('notes directory path: ');
+      initializeNotes(notesDirPath);
+    });
   });
 
 program
@@ -316,19 +322,5 @@ program
     } catch (e) {
       console.log(chalk.red(e));
     }
-  } else if (cmdValue._name === 'init') {
-    try {
-      initializeNotes();
-      console.log(chalk.green('nonote has been initialized! Yay!'));
-    } catch (e) {
-      console.log(chalk.red(e));
-    }
-  } else {
-    console.log(chalk.cyan('note already exists, edit it with one of the following commands:'));
-    console.log('nonote' + chalk.red(' add ') + '<note description>');
-    console.log('nonote' + chalk.red(' complete ') + '<note index>');
-    console.log('nonote' + chalk.red(' fail ') + '<note index>');
-    console.log('nonote' + chalk.red(' delete ') + '<note index>');
-    return;
   }
-/* eslint-enable*/
+  /* eslint-enable*/
