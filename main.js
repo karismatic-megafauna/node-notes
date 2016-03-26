@@ -8,10 +8,6 @@ var moment = require('moment');
 var co = require('co');
 var prompt = require('co-prompt');
 
-// Save Dir config
-// this needs to NOT fail when running `nonote init` soooo let's be smarter
-// about when we ask for this path?
-
 // Globals
 var today = moment().format("DD-MM-YYYY");
 
@@ -34,7 +30,6 @@ function initializeNotes(userDir) {
   fs.closeSync(fs.openSync(rcFile, 'w'));
 
   var dotFileJSON = {}
-  // TODO: get the following string from user input...oh boy... :/
   dotFileJSON.notesDirectory = userDir;
 
   fs.writeJsonSync(rcFile, dotFileJSON);
@@ -179,93 +174,12 @@ function failNote(index, key) {
   });
 }
 
-var cmdValue = '';
-var noteValue = '';
-var refValue = '';
-var noteIndex = '';
-var templateValue = '';
-
 program
   .version('0.0.1')
   .command('new [template]')
   .alias('n')
   .description('create a new note for the day')
   .action(function(template, cmd) {
-    cmdValue = cmd;
-    templateValue = template;
-  });
-
-program
-  .command('init')
-  .description('initializes notes')
-  .action(function(cmd) {
-    cmdValue = cmd;
-    co(function *() {
-      var notesDirPath = yield prompt('notes directory path: ');
-      initializeNotes(notesDirPath);
-    });
-  });
-
-program
-  .command('add [cli-ref] <notes...>')
-  .alias('a')
-  .description('add note to object')
-  .action(function(ref, note, cmd) {
-    cmdValue = cmd;
-    refValue = ref;
-    noteValue = note;
-  });
-
-program
-  .command('remove [cli-ref] <index>')
-  .alias('r')
-  .description('remove note from note object')
-  .action(function(ref, note, cmd) {
-    cmdValue = cmd;
-    refValue = ref;
-    noteIndex = note;
-  });
-
-program
-  .command('complete [cli-ref] <index>')
-  .alias('c')
-  .description('mark item as complete')
-  .action(function(ref, note, cmd) {
-    cmdValue = cmd;
-    refValue = ref;
-    noteIndex = note;
-  });
-
-program
-  .command('incomplete [cli-ref] <index>')
-  .alias('i')
-  .description('mark item as incomplete')
-  .action(function(ref, note, cmd) {
-    cmdValue = cmd;
-    refValue = ref;
-    noteIndex = note;
-  });
-
-program
-  .command('failed [cli-ref] <index>')
-  .alias('f')
-  .description('mark item as failed')
-  .action(function(ref, note, cmd) {
-    cmdValue = cmd;
-    refValue = ref;
-    noteIndex = note;
-  });
-
-  program.parse(process.argv);
-
-  // TODO: clean up below, shit is terrifying
-  // TODO: handle some errors more elegantly...don't cover those cases well
-  // what happens when i pass in an index that doesn't exist?
-  // what happens when i pass in a cli-ref that doesn't exist?
-  // Parse the commands and do something
-  if (cmdValue._name === undefined) {
-    console.log(program.help());
-  } else if (cmdValue._name === 'new') {
     var dir = getDir();
     var toData = dir + '/data.json';
     var dataJSON = fs.readJsonSync(toData);
@@ -286,41 +200,86 @@ program
     makeNote(dataJSON);
 
     console.log(chalk.white('new note created for: ') + chalk.bold.green(today));
-  } else if (cmdValue._name === 'add') {
+  });
+
+program
+  .command('init')
+  .description('initializes notes')
+  .action(function(cmd) {
+    cmdValue = cmd;
+    co(function *() {
+      var notesDirPath = yield prompt('notes directory path: ');
+      initializeNotes(notesDirPath);
+      console.log(chalk.green('Great choice! ' + chalk.red(notesDirPath) + ' is where new notes will be added :)'));
+      process.exit();
+    })
+  });
+
+program
+  .command('add [cli-ref] <notes...>')
+  .alias('a')
+  .description('add note to object')
+  .action(function(ref, note, cmd) {
     try {
-      addNote(noteValue, refValue);
+      addNote(note, ref);
       console.log(chalk.green('note added!'));
     } catch (e) {
       console.log(chalk.red(e));
     }
-  } else if (cmdValue._name === 'remove') {
-    try {
-      removeNote(noteIndex, refValue);
-      console.log(chalk.green('note at index[' + noteIndex + '] was removed!'));
-    } catch (e) {
-      console.log(chalk.red(e));
-    }
-  } else if (cmdValue._name === 'complete') {
-    try {
-      completeNote(noteIndex, refValue);
-      console.log(chalk.green('note at index[' + noteIndex + '] was marked as complete!'));
-    } catch (e) {
-      console.log(chalk.red(e));
-    }
-  } else if (cmdValue._name === 'incomplete') {
-    try {
-    incompleteNote(noteIndex, refValue);
-    console.log(chalk.green('note at index[' + noteIndex + '] was marked as incomplete!'));
-    } catch (e) {
-      console.log(chalk.red(e));
-    }
+  });
 
-  } else if (cmdValue._name === 'failed') {
+program
+  .command('remove [cli-ref] <index>')
+  .alias('r')
+  .description('remove note from note object')
+  .action(function(ref, note, cmd) {
     try {
-      failNote(noteIndex, refValue);
-      console.log(chalk.green('note at index[' + noteIndex + '] was marked as failed :('));
+      removeNote(note, ref);
+      console.log(chalk.green('note at index[' + note + '] was removed!'));
     } catch (e) {
       console.log(chalk.red(e));
     }
-  }
+  });
+
+program
+  .command('complete [cli-ref] <index>')
+  .alias('c')
+  .description('mark item as complete')
+  .action(function(ref, note, cmd) {
+    try {
+      completeNote(note, ref);
+      console.log(chalk.green('note at index[' + note + '] was marked as complete!'));
+    } catch (e) {
+      console.log(chalk.red(e));
+    }
+  });
+
+program
+  .command('incomplete [cli-ref] <index>')
+  .alias('i')
+  .description('mark item as incomplete')
+  .action(function(ref, note, cmd) {
+    try {
+      incompleteNote(note, ref);
+      console.log(chalk.green('note at index[' + note + '] was marked as incomplete!'));
+    } catch (e) {
+      console.log(chalk.red(e));
+    }
+  });
+
+program
+  .command('failed [cli-ref] <index>')
+  .alias('f')
+  .description('mark item as failed')
+  .action(function(ref, note, cmd) {
+    try {
+      failNote(note, ref);
+      console.log(chalk.green('note at index[' + note + '] was marked as failed :('));
+    } catch (e) {
+      console.log(chalk.red(e));
+    }
+  });
+
+  program.parse(process.argv);
+
   /* eslint-enable*/
