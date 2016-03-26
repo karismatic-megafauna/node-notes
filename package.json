@@ -1,5 +1,5 @@
 {
-  "name": "node-notes",
+  "name": "nonote",
   "version": "1.0.0",
   "description": "a node application for taking notes",
   "main": "main.js",
